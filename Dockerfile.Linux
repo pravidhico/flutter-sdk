@@ -1,0 +1,20 @@
+FROM ghcr.io/pravidhico/flutter_stable_base:latest
+
+ENV FLUTTER_HOME=/opt/flutter
+
+# Linux support
+RUN dnf update -y && \
+    dnf --setopt=install_weak_deps=False \
+        install -y \
+        clang \
+        cmake \
+        ninja-build \
+        gtk3-devel && \
+    dnf clean all
+
+USER ci
+
+RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
+    flutter config --no-analytics && \
+    flutter --disable-analytics && \
+    flutter precache || flutter doctor

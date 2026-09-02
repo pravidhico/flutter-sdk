@@ -23,7 +23,7 @@ RUN dnf update -y && \
 # RUN tar xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C /opt && \
 #     rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
 
-RUN wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -O flutter_linux.tar.xz && \
+RUN wget --quiet https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -O flutter_linux.tar.xz && \
     tar xf flutter_linux.tar.xz -C /opt && \
     rm flutter_linux.tar.xz
 
