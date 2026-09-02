@@ -94,7 +94,7 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
-
-      - name: Trigger GNU/Linux workflow
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
-        uses: $/.github/workflows/stable_linux.yml
+  trigger_linux:
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    needs: build
+    uses: ./.github/workflows/stable_linux.yml
