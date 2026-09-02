@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.GITHUB_REPOSITORY_OWNER }}/flutter_stable_base
+  IMAGE_NAME: ${{ github.repository_owner }}/flutter_stable_base
 
 jobs:
   build:
