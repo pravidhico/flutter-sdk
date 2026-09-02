@@ -1,0 +1,47 @@
+name: Flutter version updater
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      
+      - name: Flutter new stable version check
+        id: stable
+        shell: bash
+        run: |
+          set -euo pipefail
+          current=$(grep '^STABLE=' version.env | cut -d= -f2- || true)
+          stable=$(
+            curl --fail --silent https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json \
+              | jq -r '.current_release.stable as $stable | .releases[] | select(.hash == $stable) | .version'
+          )
+          if [ -z "$stable" ] || [ "$stable" = "null" ]; then
+            echo "Error fetching flutter stable version" >&2
+            exit 1
+          fi
+          if [ "$current" = "$stable" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "STABLE=$stable" > version.env
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "version=$stable" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request on new flutter version
+        if: steps.stable.outputs.found == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: feature/flutter-${{ steps.stable.outputs.version }}
+          commit-message: "Update flutter to ${{ steps.stable.outputs.version }}"
+          title: "Update flutter to ${{ steps.stable.outputs.version }}"
+          body: |
+            This PR updates flutter to `${{ steps.stable.outputs.version }}`.
