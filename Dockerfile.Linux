@@ -1,4 +1,6 @@
-FROM ghcr.io/pravidhico/flutter_stable_base:latest
+ARG BUILDPLATFORM
+
+FROM --platform=$BUILDPLATFORM ghcr.io/pravidhico/flutter_stable_base:latest
 
 ENV FLUTTER_HOME=/opt/flutter
 

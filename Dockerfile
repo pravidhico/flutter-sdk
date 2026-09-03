@@ -1,4 +1,6 @@
-FROM docker.io/almalinux:latest
+ARG BUILDPLATFORM
+
+FROM --platform=$BUILDPLATFORM docker.io/almalinux:latest
 
 ARG FLUTTER_VERSION=3.47.0
 
