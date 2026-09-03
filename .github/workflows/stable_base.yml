@@ -28,6 +28,9 @@ jobs:
       id-token: write
 
     steps:
+      - name: Platform check
+        run: |
+          uname -a
       - name: Checkout repository
         uses: actions/checkout@v7
 
