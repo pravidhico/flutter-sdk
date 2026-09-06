@@ -29,4 +29,7 @@ RUN wget --quiet https://storage.googleapis.com/flutter_infra_release/releases/s
 
 
 RUN useradd -ms /bin/bash ci && \
-    chown -R ci:ci ${FLUTTER_HOME}
+    chown -R ci:ci ${FLUTTER_HOME} && \
+    git config --global --add safe.directory /opt/flutter && \
+    flutter config --no-analytics && \
+    flutter --disable-analytics
