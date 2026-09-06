@@ -12,7 +12,9 @@ ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platfo
 RUN dnf update -y && \
     dnf --setopt=install_weak_deps=False \
         install -y \
-        java-21-openjdk-devel && \
+        java-21-openjdk-devel \
+        make \
+        clang && \
     dnf clean all
 
 RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O android-sdk-tools.zip && \
