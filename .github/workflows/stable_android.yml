@@ -1,14 +1,11 @@
-name: Release flutter stable SDK
+name: Release flutter stable Android SDK
 
 on:
-  push:
-    branches: [ "main" ]
-    tags: [ 'v*.*.*' ]
-  workflow_dispatch:
+  workflow_call
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/flutter_stable_base
+  IMAGE_NAME: ${{ github.repository_owner }}/flutter_stable_android
 
 jobs:
   build:
@@ -35,13 +32,6 @@ jobs:
           uname -a
       - name: Checkout repository
         uses: actions/checkout@v7
-
-      - name: Get flutter version from version.env
-        id: version
-        shell: bash
-        run: |
-          version=$(grep '^STABLE=' version.env | cut -d= -f2- || true)
-          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -82,12 +72,11 @@ jobs:
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
         with:
           context: .
+          file: ./Dockerfile.Android
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64
-          build-args: |
-            FLUTTER_VERSION=${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -106,23 +95,3 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
-  trigger_linux:
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: build
-    uses: ./.github/workflows/stable_linux.yml
-  trigger_android:
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-    needs: build
-    uses: ./.github/workflows/stable_android.yml

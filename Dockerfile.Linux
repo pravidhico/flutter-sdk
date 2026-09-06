@@ -17,4 +17,4 @@ USER ci
 RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
     flutter config --no-analytics && \
     flutter --disable-analytics && \
-    flutter precache || flutter doctor
+    flutter precache --linux || flutter doctor
