@@ -15,6 +15,9 @@ RUN dnf update -y && \
         xz \
         unzip \
         libstdc++ \
+        clang \
+        make \
+        cmake \
         mesa-libGLU && \
     dnf -y clean all
 
