@@ -18,6 +18,7 @@ RUN microdnf update -y && \
         clang \
         make \
         cmake \
+        diffutils \
         mesa-libGLU && \
     microdnf -y clean all
 

@@ -21,8 +21,7 @@ USER 0
 RUN microdnf update -y && \
     microdnf --setopt=install_weak_deps=0 \
         install -y \
-        java-21-openjdk-devel \
-        diffutils && \
+        java-21-openjdk-devel && \
     microdnf clean all
 
 USER ci
