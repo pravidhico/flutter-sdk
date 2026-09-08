@@ -1,25 +1,36 @@
-FROM --platform=$BUILDPLATFORM ghcr.io/pravidhico/flutter_stable_base:latest
+ARG BASE_IMAGE=ghcr.io/pravidhico/flutter_stable_base:latest
 
+FROM --platform=$BUILDPLATFORM ${BASE_IMAGE}
+
+ARG ANDROID_NDK_VERSION=28.2.13676358
+ARG ANDROID_PLATFORM_VERSION=36
+ARG ANDROID_BUILD_TOOLS_VERSION=36.0.0
+
+# It is important to note that newer Android SDK tools
+# includes closed source Android CLI tool (sdkmanager calls Android CLI tool)
+# so sticking to version 13114758
 ENV ANDROID_SDK_TOOLS_VERSION=13114758
-ENV ANDROID_NDK_VERSION=28.2.13676358
-ENV ANDROID_HOME=/opt/android
-ENV ANDROID_PLATFORM_VERSION=36
-ENV ANDROID_BUILD_TOOLS_VERSION=36.0.0
-ENV FLUTTER_HOME=/opt/flutter
+
+ENV ANDROID_HOME=/home/ci/android-sdk
+ENV FLUTTER_HOME=/home/ci/flutter-sdk
 
 ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools:${ANDROID_HOME}/emulator
 
-RUN dnf update -y && \
-    dnf --setopt=install_weak_deps=False \
+USER 0
+
+RUN microdnf update -y && \
+    microdnf --setopt=install_weak_deps=0 \
         install -y \
         java-21-openjdk-devel \
         diffutils && \
-    dnf clean all
+    microdnf clean all
 
-RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O android-sdk-tools.zip && \
-    mkdir -p ${ANDROID_HOME}/cmdline-tools/ && \
-    unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/ && \
-    rm android-sdk-tools.zip && \
+USER ci
+
+RUN mkdir -p ${ANDROID_HOME}/cmdline-tools/ && \
+    wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O ${ANDROID_HOME}/android-sdk-tools.zip && \
+    unzip -q ${ANDROID_HOME}/android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/ && \
+    rm ${ANDROID_HOME}/android-sdk-tools.zip && \
     mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest && \
     yes | sdkmanager --licenses && \
     yes | sdkmanager \
@@ -27,7 +38,4 @@ RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${AN
       "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
       "ndk;$ANDROID_NDK_VERSION"
 
-RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
-    flutter config --no-analytics && \
-    flutter --disable-analytics && \
-    flutter precache || flutter doctor
+RUN flutter precache --no-linux --no-web || flutter doctor

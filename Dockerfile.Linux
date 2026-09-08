@@ -1,18 +1,19 @@
-FROM ghcr.io/pravidhico/flutter_stable_base:latest
+ARG BASE_IMAGE=ghcr.io/pravidhico/flutter_stable_base:latest
 
-ENV FLUTTER_HOME=/opt/flutter
+FROM --platform=$BUILDPLATFORM ${BASE_IMAGE}
+
+ENV FLUTTER_HOME=/home/ci/flutter-sdk
+
+USER 0
 
 # Linux support
-RUN dnf update -y && \
-    dnf --setopt=install_weak_deps=False \
+RUN microdnf update -y && \
+    microdnf --setopt=install_weak_deps=0 \
         install -y \
         ninja-build \
         gtk3-devel && \
-    dnf clean all
+    microdnf clean all
 
 USER ci
 
-RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
-    flutter config --no-analytics && \
-    flutter --disable-analytics && \
-    flutter precache --linux || flutter doctor
+RUN flutter precache --linux || flutter doctor

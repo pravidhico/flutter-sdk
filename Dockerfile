@@ -1,12 +1,12 @@
-FROM docker.io/almalinux:latest
+FROM docker.io/almalinux:minimal
 
 ARG FLUTTER_VERSION=3.47.0
 
-ENV FLUTTER_HOME=/opt/flutter
+ENV FLUTTER_HOME=/home/ci/flutter-sdk
 ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
 
-RUN dnf update -y && \
-    dnf --setopt=install_weak_deps=False \
+RUN microdnf update -y && \
+    microdnf --setopt=install_weak_deps=0 \
         install -y \
         git \
         which \
@@ -19,20 +19,15 @@ RUN dnf update -y && \
         make \
         cmake \
         mesa-libGLU && \
-    dnf -y clean all
-
-# For local development, stop wasting resources
-# COPY flutter_linux_${FLUTTER_VERSION}-stable.tar.xz .
-# RUN tar xf flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -C /opt && \
-#     rm flutter_linux_${FLUTTER_VERSION}-stable.tar.xz
-
-RUN wget --quiet https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz -O flutter_linux.tar.xz && \
-    tar xf flutter_linux.tar.xz -C /opt && \
-    rm flutter_linux.tar.xz
-
+    microdnf -y clean all
 
 RUN useradd -ms /bin/bash ci && \
-    chown -R ci:ci ${FLUTTER_HOME} && \
-    git config --global --add safe.directory /opt/flutter && \
+    git clone --depth 1 --branch "$FLUTTER_VERSION" https://github.com/flutter/flutter.git "$FLUTTER_HOME" && \
+    chown -R ci:ci ${FLUTTER_HOME}
+
+USER ci
+
+RUN git config --global --add safe.directory ${FLUTTER_HOME} && \
     flutter config --no-analytics && \
-    flutter --disable-analytics
+    flutter --disable-analytics && \
+    flutter precache --web || flutter doctor
