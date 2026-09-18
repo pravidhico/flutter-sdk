@@ -19,6 +19,7 @@ RUN microdnf update -y && \
         make \
         cmake \
         diffutils \
+        nodejs \
         mesa-libGLU && \
     microdnf -y clean all
 
