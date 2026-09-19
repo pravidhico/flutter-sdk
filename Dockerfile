@@ -10,6 +10,7 @@ RUN microdnf update -y && \
         install -y \
         git \
         which \
+        jq \
         wget \
         tar \
         xz \
