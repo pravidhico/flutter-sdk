@@ -38,7 +38,6 @@ RUN mkdir -p ${ANDROID_HOME}/cmdline-tools/ && \
       "platforms;android-$ANDROID_PLATFORM_VERSION" \
       "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
       "ndk;$ANDROID_NDK_VERSION" \
-      "cmake;$CMAKE_VERSION" \
-      "platform-tools;$PLATFORM_TOOLS_VERSION"
+      "cmake;$CMAKE_VERSION"
 
 RUN flutter precache --no-linux --no-web || flutter doctor
