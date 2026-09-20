@@ -35,4 +35,4 @@ jobs:
           
           git tag -a v${{ steps.tag_name.outputs.tag }} -m "Flutter Version ${{ steps.tag_name.outputs.tag }}" --force
           
-          git push origin ${{ steps.tag_name.outputs.tag }} --force
+          git push origin v${{ steps.tag_name.outputs.tag }} --force
