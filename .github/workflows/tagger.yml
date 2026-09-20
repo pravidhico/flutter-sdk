@@ -1,0 +1,38 @@
+name: Create Tag on PR Merge
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Tag Name
+        id: tag_name
+        run: |
+          TAG=$(grep '^STABLE=' version.env | cut -d= -f2- || true)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+
+      - name: Create and Push Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git tag -a ${{ steps.tag_name.outputs.tag }} -m "Flutter Version ${{ steps.tag_name.outputs.tag }}" --force
+          
+          git push origin ${{ steps.tag_name.outputs.tag }} --force
